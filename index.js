@@ -9,7 +9,7 @@ require('highcharts/modules/exporting')(Highcharts);
 import Drilldown from 'highcharts/modules/drilldown'
 if (!Highcharts.Chart.prototype.addSeriesAsDrilldown) { Drilldown(Highcharts) }
 
-import { CommonParameter, createDrilldownDataStructure, createPieChartOption, } from './chart/pie'
+import { CommonParameter, createPieChartOption, } from './chart/pie'
 
 import { DonutParameter, createDonutChartOption } from './chart/donut'
 import { HalfDonutParameter, createHalfDonutChartOption } from './chart/harf-donut'
@@ -114,7 +114,6 @@ export default class Chart extends Visualization {
     const { columns, rows } = tableData
     const parameter = this.parameter
     const column = conf.value
-    console.info('rows',rows)
 
     try {
       this.drawPieChart(parameter, column, rows)
@@ -127,4 +126,32 @@ export default class Chart extends Visualization {
   getTransformation() {
     return this.transformation
   }
+}
+
+export function createDrilldownDataStructure(rows, seriesName) {
+  const drillDownSeries = []
+  const data = []
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i]
+    const selector = row.selector
+
+    const useDrillDown = (row.drillDown && row.drillDown.length > 0)
+
+    const drillDownData = (useDrillDown) ?row.drillDown.map(dr => {
+      const drillDownValue = parseNumber(dr.value)
+      return [ dr.group, drillDownValue, ]
+    }):[]
+    drillDownSeries.push({ name: selector, id: selector, data: drillDownData, })
+
+    let seriesValue = parseNumber(row.value)
+
+   
+    data.push({ name: selector, y: seriesValue, drilldown: (useDrillDown) ? selector : null, })
+  }
+
+  const series = []
+  series.push({ name: 'Total', colorByPoint: true, data: data, })
+
+  return { series: series, drillDownSeries: drillDownSeries, }
 }
