@@ -87,6 +87,8 @@ export default class Chart extends Visualization {
     }
 
     const { series, drillDownSeries, } = createDrilldownDataStructure(rows)
+    console.info('pie-series',series)
+    console.info('pie-drillDownSeries',drillDownSeries)
     const chartOption = createPieChartOption(series, drillDownSeries, parameter)
     this.chartInstance = Highcharts.chart(this.getChartElementId(), chartOption)
   }
@@ -102,8 +104,8 @@ export default class Chart extends Visualization {
    *  For example, `["19", "4"]`
    */
   render(tableData) {
-    console.info('tableData', tableData)
-    console.info('conf', this.config)
+    console.info('pie-tableData', tableData)
+    console.info('pie-conf', this.config)
     const conf = this.config
 
     /** heatmap can be rendered when all 3 axises are defined */
