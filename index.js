@@ -141,15 +141,15 @@ export function createDrilldownDataStructure(rows, conf) {
     const row = rows[i]
     
 
-    const drillDownData = (useDrillDown) ? rows.map(dr => {
-      const drillDownValue = parseNumber(dr[selector])
-      return [dr[drilldown.Index], drillDownValue,]
+    const drillDownData = (this.useDrillDown) ? rows.map(dr => {
+      const drillDownValue = parseNumber(dr[this.selector])
+      return [dr[this.drilldown.Index], drillDownValue,]
     }) : null
-    drillDownSeries.push({ name: seriesName, id: seriesName, data: drillDownData, })
+    drillDownSeries.push({ name: this.seriesName, id: this.seriesName, data: drillDownData, })
 
-    let seriesValue = parseNumber(row[selector])
+    let seriesValue = parseNumber(row[this.selector])
 
-    data.push({ name: seriesName, y: seriesValue, drilldown: (useDrillDown) ? seriesName : null, })
+    data.push({ name: this.seriesName, y: seriesValue, drilldown: (this.useDrillDown) ? this.seriesName : null, })
   }
 
   const series = []
