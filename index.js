@@ -80,13 +80,14 @@ export default class Chart extends Visualization {
         </div>`
   }
 
-  drawPieChart(parameter, column, drill, rows) {
-    if (column.aggr.length === 0) {
+  drawPieChart(parameter, conf, rows) {
+    const column = conf.value
+    if (!column || column.aggr.length === 0) {
       this.hideChart()
       return /** have nothing to display, if aggregator is not specified at all */
     }
 
-    const { series, drillDownSeries, } = createDrilldownDataStructure(rows, column, drill)
+    const { series, drillDownSeries, } = createDrilldownDataStructure(rows, conf)
     const chartOption = createPieChartOption(series, drillDownSeries, parameter)
     console.info('pie-chartOption', chartOption)
     this.chartInstance = Highcharts.chart(this.getChartElementId(), chartOption)
@@ -112,13 +113,11 @@ export default class Chart extends Visualization {
       return
     }
 
-    const { columns, rows } = tableData
+    const { rows, } = tableData
     const parameter = this.parameter
-    const column = conf.value
-    const drill = conf.drilldown
 
     try {
-      this.drawPieChart(parameter, column, drill, rows)
+      this.drawPieChart(parameter, conf, rows)
     } catch (error) {
       console.error(error)
       this.showError(error)
@@ -130,7 +129,8 @@ export default class Chart extends Visualization {
   }
 }
 
-export function createDrilldownDataStructure(rows, column, drillDown) {
+export function createDrilldownDataStructure(rows, conf) {
+  const { category, value, drilldown } = conf
   const drillDownSeries = []
   const data = []
 
@@ -138,18 +138,18 @@ export function createDrilldownDataStructure(rows, column, drillDown) {
     const row = rows[i]
     const selector = i
 
-    const useDrillDown = (drillDown && Number.isSafeInteger(drillDown.Index))
+    const useDrillDown = (drillDown && Number.isSafeInteger(drilldown.Index))
 
     const drillDownData = (useDrillDown) ? rows.map(dr => {
-      const drillDownValue = parseNumber(dr[column.index])
-      return [dr[drillDown.Index], drillDownValue,]
+      const drillDownValue = parseNumber(dr[value.index])
+      return [dr[drilldown.Index], drillDownValue,]
     }) : null
-    drillDownSeries.push({ name: selector, id: selector, data: drillDownData, })
+    drillDownSeries.push({ name: category.name, id: category.name, data: drillDownData, })
 
     let seriesValue = parseNumber(row[column.index])
 
 
-    data.push({ name: selector, y: seriesValue, drilldown: (useDrillDown) ? selector : null, })
+    data.push({ name: category.name, y: seriesValue, drilldown: (useDrillDown) ? selector : null, })
   }
 
   const series = []
