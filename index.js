@@ -131,7 +131,7 @@ export default class Chart extends Visualization {
 
 export function createDrilldownDataStructure(rows, conf) {
   const { category, value, drilldown } = conf
-  const useDrillDown = (drilldown && Number.isSafeInteger(drilldown.Index))
+  const useDrillDown = (drilldown && drilldown.aggr.length > 0)
   const selector = parseNumber(value.index)
   const seriesName = category.name
   const drillDownSeries = []
