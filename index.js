@@ -133,6 +133,7 @@ export function createDrilldownDataStructure(rows, conf) {
   const { category, value, drilldown } = conf
   const useDrillDown = (drilldown && Number.isSafeInteger(drilldown.Index))
   const selector = parseNumber(value.index)
+  const seriesName = category.name
   const drillDownSeries = []
   const data = []
 
@@ -144,11 +145,11 @@ export function createDrilldownDataStructure(rows, conf) {
       const drillDownValue = parseNumber(dr[selector])
       return [dr[drilldown.Index], drillDownValue,]
     }) : null
-    drillDownSeries.push({ name: category.name, id: category.name, data: drillDownData, })
+    drillDownSeries.push({ name: seriesName, id: seriesName, data: drillDownData, })
 
     let seriesValue = parseNumber(row[selector])
 
-    data.push({ name: category.name, y: seriesValue, drilldown: (useDrillDown) ? selector : null, })
+    data.push({ name: seriesName, y: seriesValue, drilldown: (useDrillDown) ? seriesName : null, })
   }
 
   const series = []
