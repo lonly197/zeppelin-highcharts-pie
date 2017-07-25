@@ -105,9 +105,10 @@ export default class Chart extends Visualization {
     }
 
     const { columns, rows } = tableData
+    const column = columns.find(p=>p.name == conf.value)
 
     try {
-      this.drawPieChart(this.getParameter(), columns[value], this.getTransformation())
+      this.drawPieChart(this.getParameter(), column, this.getTransformation())
     } catch (error) {
       console.error(error)
       this.showError(error)
@@ -122,16 +123,3 @@ export default class Chart extends Visualization {
     return this.parameter
   }
 }
-
-// export function getSeriesName(column) {
-//   let seriesName = ''
-
-//   if (column.key.length > 0) { seriesName = column.key.map(c => c.name).join('.') }
-//   if (column.aggregator.length === 1) {
-//     seriesName = `${seriesName} / ${column.aggregator[0].name}`
-//   } else if (column.aggregator.length > 1) {
-//     seriesName = `${seriesName} / [${column.aggregator.map(c => c.name).join('|')}]`
-//   }
-
-//   return seriesName
-// }
