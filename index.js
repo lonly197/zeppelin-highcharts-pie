@@ -102,8 +102,8 @@ export default class Chart extends Visualization {
    *  For example, `["19", "4"]`
    */
   render(tableData) {
-    // console.info('tableData', tableData)
-    // console.info('conf', this.config)
+    console.info('tableData', tableData)
+    console.info('conf', this.config)
     const conf = this.config
 
     /** heatmap can be rendered when all 3 axises are defined */
@@ -114,6 +114,7 @@ export default class Chart extends Visualization {
     const { columns, rows } = tableData
     const parameter = this.parameter
     const column = conf.value
+    console.info('rows',rows)
 
     try {
       this.drawPieChart(parameter, column, rows)
