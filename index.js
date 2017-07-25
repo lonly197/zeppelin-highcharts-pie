@@ -9,7 +9,7 @@ require('highcharts/modules/exporting')(Highcharts);
 import Drilldown from 'highcharts/modules/drilldown'
 if (!Highcharts.Chart.prototype.addSeriesAsDrilldown) { Drilldown(Highcharts) }
 
-import { CommonParameter,parseNumber, createPieChartOption, } from './chart/pie'
+import { CommonParameter, parseNumber, createPieChartOption, } from './chart/pie'
 
 import { DonutParameter, createDonutChartOption } from './chart/donut'
 import { HalfDonutParameter, createHalfDonutChartOption } from './chart/harf-donut'
@@ -80,16 +80,15 @@ export default class Chart extends Visualization {
         </div>`
   }
 
-  drawPieChart(parameter, column, rows) {
+  drawPieChart(parameter, column, drill, rows) {
     if (column.aggr.length === 0) {
       this.hideChart()
       return /** have nothing to display, if aggregator is not specified at all */
     }
 
-    const { series, drillDownSeries, } = createDrilldownDataStructure(rows)
-    console.info('pie-series',series)
-    console.info('pie-drillDownSeries',drillDownSeries)
+    const { series, drillDownSeries, } = createDrilldownDataStructure(rows, column, drill)
     const chartOption = createPieChartOption(series, drillDownSeries, parameter)
+    console.info('pie-chartOption', chartOption)
     this.chartInstance = Highcharts.chart(this.getChartElementId(), chartOption)
   }
 
@@ -116,9 +115,10 @@ export default class Chart extends Visualization {
     const { columns, rows } = tableData
     const parameter = this.parameter
     const column = conf.value
+    const drill = conf.drill - down
 
     try {
-      this.drawPieChart(parameter, column, rows)
+      this.drawPieChart(parameter, column, drill, rows)
     } catch (error) {
       console.error(error)
       this.showError(error)
@@ -130,25 +130,25 @@ export default class Chart extends Visualization {
   }
 }
 
-export function createDrilldownDataStructure(rows, seriesName) {
+export function createDrilldownDataStructure(rows, column, drillDown) {
   const drillDownSeries = []
   const data = []
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i]
-    const selector = row.selector
+    const selector = i
 
-    const useDrillDown = (row.drillDown && row.drillDown.length > 0)
+    const useDrillDown = (drillDown && Number.isSafeInteger(drillDown.Index))
 
-    const drillDownData = (useDrillDown) ?row.drillDown.map(dr => {
-      const drillDownValue = parseNumber(dr.value)
-      return [ dr.group, drillDownValue, ]
-    }):[]
+    const drillDownData = (useDrillDown) ? rows.map(dr => {
+      const drillDownValue = parseNumber(dr[column.index])
+      return [dr[drillDown.Index], drillDownValue,]
+    }) : null
     drillDownSeries.push({ name: selector, id: selector, data: drillDownData, })
 
-    let seriesValue = parseNumber(row.value)
+    let seriesValue = parseNumber(row[column.index])
 
-   
+
     data.push({ name: selector, y: seriesValue, drilldown: (useDrillDown) ? selector : null, })
   }
 
