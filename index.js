@@ -115,9 +115,10 @@ export default class Chart extends Visualization {
 
     const { columns, rows } = tableData
     const column = columns.find(p => p.name == conf.value)
+    console.info('column',column)
 
     try {
-      this.drawPieChart(this.getParameter(), column, this.getTransformation())
+      this.drawPieChart(this.getParameter(), conf.value, this.getTransformation())
     } catch (error) {
       console.error(error)
       this.showError(error)
