@@ -115,7 +115,7 @@ export default class Chart extends Visualization {
     const { columns, rows } = tableData
     const parameter = this.parameter
     const column = conf.value
-    const drill = conf.drill - down
+    const drill = conf.drill-down
 
     try {
       this.drawPieChart(parameter, column, drill, rows)
