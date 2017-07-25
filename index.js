@@ -46,32 +46,6 @@ export default class Chart extends Visualization {
   }
 
   drawPieChart(parameter, column, transformer) {
-    if (column.aggregator.length === 0) {
-      this.hideChart()
-      return /** have nothing to display, if aggregator is not specified at all */
-    }
-
-    const { rows, } = transformer()
-
-    const { series, drillDownSeries, } = createDrilldownDataStructure(rows)
-    const chartOption = createPieChartOption(series, drillDownSeries, parameter)
-    this.chartInstance = Highcharts.chart(this.getChartElementId(), chartOption)
-  }
-
-  drawDonutChart(parameter, column, transformer) {
-    if (column.aggregator.length === 0) {
-      this.hideChart()
-      return /** have nothing to display, if aggregator is not specified at all */
-    }
-
-    const { rows, } = transformer()
-
-    const { series, drillDownSeries, } = createDrilldownDataStructure(rows)
-    const chartOption = createDonutChartOption(series, drillDownSeries, parameter)
-    this.chartInstance = Highcharts.chart(this.getChartElementId(), chartOption)
-  }
-
-  drawHalfDonutChart(parameter, column, transformer) {
     if (column.aggr.length === 0) {
       this.hideChart()
       return /** have nothing to display, if aggregator is not specified at all */
@@ -80,7 +54,7 @@ export default class Chart extends Visualization {
     const { rows, } = transformer()
 
     const { series, drillDownSeries, } = createDrilldownDataStructure(rows)
-    const chartOption = createHalfDonutChartOption(series, drillDownSeries, parameter)
+    const chartOption = createPieChartOption(series, drillDownSeries, parameter)
     this.chartInstance = Highcharts.chart(this.getChartElementId(), chartOption)
   }
 
