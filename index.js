@@ -22,7 +22,7 @@ export default class Chart extends Visualization {
     this.columnSelectorProps = [
       { name: 'category' },
       { name: 'value' },
-      { name: 'drill-down' },
+      { name: 'drilldown' },
     ]
 
     this.parameter = {
@@ -115,7 +115,7 @@ export default class Chart extends Visualization {
     const { columns, rows } = tableData
     const parameter = this.parameter
     const column = conf.value
-    const drill = conf.drill-down
+    const drill = conf.drilldown
 
     try {
       this.drawPieChart(parameter, column, drill, rows)
