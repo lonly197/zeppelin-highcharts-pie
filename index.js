@@ -1,11 +1,11 @@
 import Visualization from 'zeppelin-vis'
-import AdvancedTransformation from 'zeppelin-tabledata/advanced-transformation'
+import ColumnselectorTransformation from 'zeppelin-tabledata/columnselector'
 
 import Highcharts from 'highcharts/highcharts'
 require('highcharts/modules/data')(Highcharts);
 require('highcharts/modules/exporting')(Highcharts);
 
-// http://stackoverflow.com/questions/42076332/uncaught-typeerror-e-dodrilldown-is-not-a-function-highcharts
+/ http:/ / stackoverflow.com / questions / 42076332 / uncaught - typeerror - e - dodrilldown - is - not - a - function-highcharts
 import Drilldown from 'highcharts/modules/drilldown'
 if (!Highcharts.Chart.prototype.addSeriesAsDrilldown) { Drilldown(Highcharts) }
 
@@ -14,11 +14,21 @@ import { CommonParameter, createDrilldownDataStructure, createPieChartOption, } 
 import { DonutParameter, createDonutChartOption } from './chart/donut'
 import { HalfDonutParameter, createHalfDonutChartOption } from './chart/harf-donut'
 
+
 export default class Chart extends Visualization {
   constructor(targetEl, config) {
     super(targetEl, config)
 
-    const spec = {
+    this.columnSelectorProps = [
+      { name: 'category' },
+      { name: 'value' },
+      { name: 'drill-down' },
+    ]
+
+    this.transformation = new ColumnselectorTransformation(
+      config, this.columnSelectorProps)
+
+    this.parameter = {
       charts: {
         'pie': {
           transform: { method: 'drill-down', },
@@ -29,74 +39,9 @@ export default class Chart extends Visualization {
             'drill-down': { dimension: 'multiple', axisType: 'group', },
           },
           parameter: CommonParameter,
-        },
-
-        'donut': {
-          transform: { method: 'drill-down', },
-          sharedAxis: true,
-          axis: {
-            'category': { dimension: 'multiple', axisType: 'key', },
-            'value': { dimension: 'multiple', axisType: 'aggregator', minAxisCount: 1, },
-            'drill-down': { dimension: 'multiple', axisType: 'group', },
-          },
-          parameter: DonutParameter,
-        },
-
-        'half-donut': {
-          transform: { method: 'drill-down', },
-          sharedAxis: true,
-          axis: {
-            'category': { dimension: 'multiple', axisType: 'key', },
-            'value': { dimension: 'multiple', axisType: 'aggregator', minAxisCount: 1, },
-            'drill-down': { dimension: 'multiple', axisType: 'group', },
-          },
-          parameter: HalfDonutParameter,
-        },
-      },
+        }
+      }
     }
-
-    try {
-      this.transformation = new AdvancedTransformation(config, spec)
-      console.info('pie chart config', this.transformation)
-    } catch (errore) {
-      console.error(error)
-      this.showError(error)
-    }
-  }
-
-  getChartElementId() {
-    return this.targetEl[0].id
-  }
-
-  getChartElement() {
-    return document.getElementById(this.getChartElementId())
-  }
-
-  clearChart() {
-    if (this.chartInstance) { this.chartInstance.destroy() }
-  }
-
-  hideChart() {
-    this.clearChart()
-    this.getChartElement().innerHTML = `
-        <div style="margin-top: 60px; text-align: center; font-weight: 100">
-            <span style="font-size:30px;">
-                Please set axes in
-            </span>
-            <span style="font-size: 30px; font-style:italic;">
-                Settings
-            </span>
-        </div>`
-  }
-
-  showError(error) {
-    this.clearChart()
-    this.getChartElement().innerHTML = `
-        <div style="margin-top: 60px; text-align: center; font-weight: 300">
-            <span style="font-size:30px; color: #e4573c;">
-                ${error.message} 
-            </span>
-        </div>`
   }
 
   drawPieChart(parameter, column, transformer) {
@@ -126,7 +71,7 @@ export default class Chart extends Visualization {
   }
 
   drawHalfDonutChart(parameter, column, transformer) {
-    if (column.aggregator.length === 0) {
+    if (column.aggr.length === 0) {
       this.hideChart()
       return /** have nothing to display, if aggregator is not specified at all */
     }
@@ -138,24 +83,28 @@ export default class Chart extends Visualization {
     this.chartInstance = Highcharts.chart(this.getChartElementId(), chartOption)
   }
 
-  render(data) {
-    const {
-      chartChanged, parameterChanged,
-      chart, parameter, column, transformer,
-    } = data
-    console.info('pie chart data', data)
-    console.info('pie chart config', this.config);
+  /**
+   * @param tableData {Object} includes cols and rows. For example,
+   *                           `{columns: Array[2], rows: Array[11], comment: ""}`
+   *
+   * Each column includes `aggr`, `index`, `name` fields.
+   *  For example, `{ aggr: "sum", index: 0, name: "age"}`
+   *
+   * Each row is an array including values.
+   *  For example, `["19", "4"]`
+   */
+  render(tableData) {
+    const conf = this.config
 
-    if (!chartChanged && !parameterChanged) { return }
+    /** heatmap can be rendered when all 3 axises are defined */
+    if (!conf.categories || !conf.value) {
+      return
+    }
+
+    const { columns, rows } = tableData
 
     try {
-      if (chart === 'pie') {
-        this.drawPieChart(parameter, column, transformer)
-      } else if (chart === 'donut') {
-        this.drawDonutChart(parameter, column, transformer)
-      } else if (chart === 'half-donut') {
-        this.drawHalfDonutChart(parameter, column, transformer)
-      }
+      this.drawPieChart(getParameter(), columns[value], this.getTransformation())
     } catch (error) {
       console.error(error)
       this.showError(error)
@@ -165,19 +114,21 @@ export default class Chart extends Visualization {
   getTransformation() {
     return this.transformation
   }
-}
 
-export function getSeriesName(column) {
-  let seriesName = ''
-
-  if (column.key.length > 0) { seriesName = column.key.map(c => c.name).join('.') }
-  if (column.aggregator.length === 1) {
-    seriesName = `${seriesName} / ${column.aggregator[0].name}`
-  } else if (column.aggregator.length > 1) {
-    seriesName = `${seriesName} / [${column.aggregator.map(c => c.name).join('|')}]`
+  getParameter() {
+    return this.parameter
   }
-
-  return seriesName
 }
 
+// export function getSeriesName(column) {
+//   let seriesName = ''
 
+//   if (column.key.length > 0) { seriesName = column.key.map(c => c.name).join('.') }
+//   if (column.aggregator.length === 1) {
+//     seriesName = `${seriesName} / ${column.aggregator[0].name}`
+//   } else if (column.aggregator.length > 1) {
+//     seriesName = `${seriesName} / [${column.aggregator.map(c => c.name).join('|')}]`
+//   }
+
+//   return seriesName
+// }
