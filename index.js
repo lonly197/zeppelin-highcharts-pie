@@ -131,23 +131,22 @@ export default class Chart extends Visualization {
 
 export function createDrilldownDataStructure(rows, conf) {
   const { category, value, drilldown } = conf
+  const useDrillDown = (drilldown && Number.isSafeInteger(drilldown.Index))
+  const selector = parseNumber(value.index)
   const drillDownSeries = []
   const data = []
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i]
-    const selector = i
-
-    const useDrillDown = (drillDown && Number.isSafeInteger(drilldown.Index))
+    
 
     const drillDownData = (useDrillDown) ? rows.map(dr => {
-      const drillDownValue = parseNumber(dr[value.index])
+      const drillDownValue = parseNumber(dr[selector])
       return [dr[drilldown.Index], drillDownValue,]
     }) : null
     drillDownSeries.push({ name: category.name, id: category.name, data: drillDownData, })
 
-    let seriesValue = parseNumber(row[column.index])
-
+    let seriesValue = parseNumber(row[selector])
 
     data.push({ name: category.name, y: seriesValue, drilldown: (useDrillDown) ? selector : null, })
   }
