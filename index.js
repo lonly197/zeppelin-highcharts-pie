@@ -1,11 +1,11 @@
 import Visualization from 'zeppelin-vis'
-import ColumnselectorTransformation from 'zeppelin-tabledata/columnselector'
+import AdvancedTransformation from 'zeppelin-tabledata/advanced-transformation'
 
 import Highcharts from 'highcharts/highcharts'
 require('highcharts/modules/data')(Highcharts);
 require('highcharts/modules/exporting')(Highcharts);
 
-/ http:/ / stackoverflow.com / questions / 42076332 / uncaught - typeerror - e - dodrilldown - is - not - a - function-highcharts
+// http://stackoverflow.com/questions/42076332/uncaught-typeerror-e-dodrilldown-is-not-a-function-highcharts
 import Drilldown from 'highcharts/modules/drilldown'
 if (!Highcharts.Chart.prototype.addSeriesAsDrilldown) { Drilldown(Highcharts) }
 
