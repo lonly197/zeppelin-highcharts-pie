@@ -80,13 +80,11 @@ export default class Chart extends Visualization {
         </div>`
   }
 
-  drawPieChart(parameter, column, transformer) {
+  drawPieChart(parameter, column, rows) {
     if (column.aggr.length === 0) {
       this.hideChart()
       return /** have nothing to display, if aggregator is not specified at all */
     }
-
-    const { rows, } = transformer()
 
     const { series, drillDownSeries, } = createDrilldownDataStructure(rows)
     const chartOption = createPieChartOption(series, drillDownSeries, parameter)
@@ -104,8 +102,8 @@ export default class Chart extends Visualization {
    *  For example, `["19", "4"]`
    */
   render(tableData) {
-    console.info('tableData', tableData)
-    console.info('conf', this.config)
+    // console.info('tableData', tableData)
+    // console.info('conf', this.config)
     const conf = this.config
 
     /** heatmap can be rendered when all 3 axises are defined */
@@ -114,11 +112,11 @@ export default class Chart extends Visualization {
     }
 
     const { columns, rows } = tableData
-    const column = columns.find(p => p.name == conf.value)
-    console.info('column',column)
+    const parameter = this.parameter
+    const column = conf.value
 
     try {
-      this.drawPieChart(this.getParameter(), conf.value, this.getTransformation())
+      this.drawPieChart(parameter, column, rows)
     } catch (error) {
       console.error(error)
       this.showError(error)
@@ -127,9 +125,5 @@ export default class Chart extends Visualization {
 
   getTransformation() {
     return this.transformation
-  }
-
-  getParameter() {
-    return this.parameter
   }
 }
