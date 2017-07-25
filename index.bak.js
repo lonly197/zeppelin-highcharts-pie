@@ -137,8 +137,6 @@ export default class Chart extends Visualization {
       chartChanged, parameterChanged,
       chart, parameter, column, transformer,
     } = data
-    console.log('pie chart data', data)
-    console.log('pie chart config', this.config);
 
     if (!chartChanged && !parameterChanged) { return }
 

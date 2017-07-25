@@ -55,7 +55,13 @@ export default class Chart extends Visualization {
       },
     }
 
-    this.transformation = new AdvancedTransformation(config, spec)
+    try {
+      this.transformation = new AdvancedTransformation(config, spec)
+      console.info('pie chart config', this.transformation)
+    } catch (errore) {
+      console.error(error)
+      this.showError(error)
+    }
   }
 
   getChartElementId() {
@@ -137,6 +143,8 @@ export default class Chart extends Visualization {
       chartChanged, parameterChanged,
       chart, parameter, column, transformer,
     } = data
+    console.info('pie chart data', data)
+    console.info('pie chart config', this.config);
 
     if (!chartChanged && !parameterChanged) { return }
 
