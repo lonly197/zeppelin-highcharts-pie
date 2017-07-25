@@ -25,7 +25,7 @@ export default class Chart extends Visualization {
       { name: 'drill-down' },
     ]
 
-     this.parameter = {
+    this.parameter = {
       charts: {
         'pie': {
           transform: { method: 'drill-down', },
@@ -42,7 +42,42 @@ export default class Chart extends Visualization {
 
     this.transformation = new ColumnselectorTransformation(
       config, this.columnSelectorProps)
- 
+
+  }
+
+  getChartElementId() {
+    return this.targetEl[0].id
+  }
+
+  getChartElement() {
+    return document.getElementById(this.getChartElementId())
+  }
+
+  clearChart() {
+    if (this.chartInstance) { this.chartInstance.destroy() }
+  }
+
+  hideChart() {
+    this.clearChart()
+    this.getChartElement().innerHTML = `
+        <div style="margin-top: 60px; text-align: center; font-weight: 100">
+            <span style="font-size:30px;">
+                Please set axes in
+            </span>
+            <span style="font-size: 30px; font-style:italic;">
+                Settings
+            </span>
+        </div>`
+  }
+
+  showError(error) {
+    this.clearChart()
+    this.getChartElement().innerHTML = `
+        <div style="margin-top: 60px; text-align: center; font-weight: 300">
+            <span style="font-size:30px; color: #e4573c;">
+                ${error.message} 
+            </span>
+        </div>`
   }
 
   drawPieChart(parameter, column, transformer) {
@@ -70,7 +105,7 @@ export default class Chart extends Visualization {
    */
   render(tableData) {
     console.info('tableData', tableData)
-    console.info('conf',this.config)
+    console.info('conf', this.config)
     const conf = this.config
 
     /** heatmap can be rendered when all 3 axises are defined */
@@ -79,7 +114,7 @@ export default class Chart extends Visualization {
     }
 
     const { columns, rows } = tableData
-    const column = columns.find(p=>p.name == conf.value)
+    const column = columns.find(p => p.name == conf.value)
 
     try {
       this.drawPieChart(this.getParameter(), column, this.getTransformation())
