@@ -1,5 +1,5 @@
 import Visualization from 'zeppelin-vis'
-import AdvancedTransformation from 'zeppelin-tabledata/advanced-transformation'
+import ColumnselectorTransformation from 'zeppelin-tabledata/columnselector'
 
 import Highcharts from 'highcharts/highcharts'
 require('highcharts/modules/data')(Highcharts);
@@ -25,10 +25,7 @@ export default class Chart extends Visualization {
       { name: 'drill-down' },
     ]
 
-    this.transformation = new ColumnselectorTransformation(
-      config, this.columnSelectorProps)
-
-    this.parameter = {
+     this.parameter = {
       charts: {
         'pie': {
           transform: { method: 'drill-down', },
@@ -42,6 +39,10 @@ export default class Chart extends Visualization {
         }
       }
     }
+
+    this.transformation = new ColumnselectorTransformation(
+      config, this.columnSelectorProps)
+ 
   }
 
   drawPieChart(parameter, column, transformer) {
@@ -99,14 +100,14 @@ export default class Chart extends Visualization {
     const conf = this.config
 
     /** heatmap can be rendered when all 3 axises are defined */
-    if (!conf.categories || !conf.value) {
+    if (!conf.category || !conf.value) {
       return
     }
 
     const { columns, rows } = tableData
 
     try {
-      this.drawPieChart(getParameter(), columns[value], this.getTransformation())
+      this.drawPieChart(this.getParameter(), columns[value], this.getTransformation())
     } catch (error) {
       console.error(error)
       this.showError(error)
