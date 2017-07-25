@@ -9,7 +9,7 @@ require('highcharts/modules/exporting')(Highcharts);
 import Drilldown from 'highcharts/modules/drilldown'
 if (!Highcharts.Chart.prototype.addSeriesAsDrilldown) { Drilldown(Highcharts) }
 
-import { CommonParameter, createPieChartOption, } from './chart/pie'
+import { CommonParameter,parseNumber, createPieChartOption, } from './chart/pie'
 
 import { DonutParameter, createDonutChartOption } from './chart/donut'
 import { HalfDonutParameter, createHalfDonutChartOption } from './chart/harf-donut'
