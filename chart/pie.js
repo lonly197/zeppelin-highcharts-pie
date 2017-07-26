@@ -95,6 +95,7 @@ export function createPieChartOption(series, drillDownSeries, parameter) {
     },
     series: series,
     drilldown: { series: drillDownSeries, },
+    credits: { enabled: false },
   }
 
   if (mainTitle !== '') { option.title.text = mainTitle }
