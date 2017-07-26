@@ -115,9 +115,10 @@ export default class Chart extends Visualization {
 
     const { rows, } = tableData
     const parameter = this.parameter
+    console.log('parameter', parameter)
 
     try {
-      this.drawPieChart(parameter, conf, rows)
+      this.drawPieChart(CommonParameter, conf, rows)
     } catch (error) {
       console.error(error)
       this.showError(error)
