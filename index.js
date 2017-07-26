@@ -11,9 +11,6 @@ if (!Highcharts.Chart.prototype.addSeriesAsDrilldown) { Drilldown(Highcharts) }
 
 import { CommonParameter, parseNumber, createPieChartOption, } from './chart/pie'
 
-import { DonutParameter, createDonutChartOption } from './chart/donut'
-import { HalfDonutParameter, createHalfDonutChartOption } from './chart/harf-donut'
-
 
 export default class Chart extends Visualization {
   constructor(targetEl, config) {
@@ -25,20 +22,22 @@ export default class Chart extends Visualization {
       { name: 'drilldown' },
     ]
 
-    this.parameter = {
-      charts: {
-        'pie': {
-          transform: { method: 'drill-down', },
-          sharedAxis: true,
-          axis: {
-            'category': { dimension: 'multiple', axisType: 'key', },
-            'value': { dimension: 'multiple', axisType: 'aggregator', minAxisCount: 1, },
-            'drill-down': { dimension: 'multiple', axisType: 'group', },
-          },
-          parameter: CommonParameter,
-        }
-      }
-    }
+    this.parameter = CommonParameter
+
+    // this.parameter = {
+    //   charts: {
+    //     'pie': {
+    //       transform: { method: 'drill-down', },
+    //       sharedAxis: true,
+    //       axis: {
+    //         'category': { dimension: 'multiple', axisType: 'key', },
+    //         'value': { dimension: 'multiple', axisType: 'aggregator', minAxisCount: 1, },
+    //         'drill-down': { dimension: 'multiple', axisType: 'group', },
+    //       },
+    //       parameter: CommonParameter,
+    //     }
+    //   }
+    // }
 
     this.transformation = new ColumnselectorTransformation(
       config, this.columnSelectorProps)
@@ -114,11 +113,11 @@ export default class Chart extends Visualization {
     }
 
     const { rows, } = tableData
-    const parameter = this.parameter
-    console.log('parameter', parameter)
+    // const parameter = this.parameter
+    // console.info('parameter', parameter)
 
     try {
-      this.drawPieChart(CommonParameter, conf, rows)
+      this.drawPieChart(this.parameter, conf, rows)
     } catch (error) {
       console.error(error)
       this.showError(error)
