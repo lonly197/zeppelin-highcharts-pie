@@ -14,22 +14,6 @@ export const CommonParameter = {
   'tooltipValuePrecision': { valueType: 'string', defaultValue: '.1f', description: 'precision of tooltip value without <code>:</code> (<a href="http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting">doc</a>)', },
 }
 
-export function getPrecisionFormat(precision, prefix) {
-  return (precision === '') ? `{${prefix}:.1f}` : `{${prefix}:${precision}}`
-}
-
-export function parseNumber(oldValue) {
-  let newValue = oldValue
-
-  try {
-    /** highcharts.pie only allow number type */
-    if (typeof newValue !== 'number') { newValue = parseFloat(newValue) }
-    if (isNaN(newValue)) { newValue = 0 }
-  } catch (error) { /** ignore */ }
-
-  return newValue
-}
-
 export function createDrilldownDataStructure(rows, conf) {
   const { category, value, drilldown } = conf
   const useDrillDown = (drilldown && drilldown.aggr.length > 0)
