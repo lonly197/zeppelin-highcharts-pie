@@ -24,20 +24,7 @@ export default class Chart extends Visualization {
 
     this.parameter = CommonParameter
 
-    // this.parameter = {
-    //   charts: {
-    //     'pie': {
-    //       transform: { method: 'drill-down', },
-    //       sharedAxis: true,
-    //       axis: {
-    //         'category': { dimension: 'multiple', axisType: 'key', },
-    //         'value': { dimension: 'multiple', axisType: 'aggregator', minAxisCount: 1, },
-    //         'drill-down': { dimension: 'multiple', axisType: 'group', },
-    //       },
-    //       parameter: CommonParameter,
-    //     }
-    //   }
-    // }
+    this.parameter = initParameter(CommonParameter)
 
     this.transformation = new ColumnselectorTransformation(
       config, this.columnSelectorProps)
@@ -114,7 +101,7 @@ export default class Chart extends Visualization {
 
     const { rows, } = tableData
     // const parameter = this.parameter
-    // console.info('parameter', parameter)
+    console.info('parameter', this.parameter)
 
     try {
       this.drawPieChart(this.parameter, conf, rows)
@@ -177,4 +164,12 @@ export function sumBy(arr, key) {
     },
     0
   );
+}
+
+export function initParameter(parameter){
+  const params = {}
+  for(let [key,value] of Object.entries(parameter)){
+    params[key]=value.defaultValue
+  }
+  return params
 }
