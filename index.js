@@ -132,33 +132,64 @@ export default class Chart extends Visualization {
 export function createDrilldownDataStructure(rows, conf) {
   const { category, value, drilldown } = conf
   const useDrillDown = (drilldown && drilldown.aggr.length > 0)
-  const selector = parseNumber(value.index)
+  const selector = parseNumber(value.name)
   const seriesName = category.name
   const drillDownSeries = []
   const data = []
-  console.info('category',category)
-  console.info('value',value)
-  console.info('drilldown',drilldown)
-  console.info('useDrillDown',useDrillDown)
-  console.info('selector',selector)
-  console.info('seriesName',seriesName)
+  const series = []
 
-  for (let i = 0; i < rows.length; i++) {
-    const row = rows[i]
+  rows = groupBy(rows, seriesName)
 
-    const drillDownData = (useDrillDown) ? rows.map(dr => {
+  for (let [key, values] of rows) {
+
+    let seriesValue = sumBy(values,selector)
+    data.push({ name: key, y: seriesValue, drilldown: (useDrillDown) ? key : null, })
+
+    const drillDownData = (useDrillDown) ? values.map(dr => {
       const drillDownValue = parseNumber(dr[selector])
       return [dr[drilldown.Index], drillDownValue,]
     }) : null
-    drillDownSeries.push({ name: seriesName, id: seriesName, data: drillDownData, })
-
-    let seriesValue = parseNumber(row[selector])
-
-    data.push({ name: seriesName, y: seriesValue, drilldown: (useDrillDown) ? seriesName : null, })
+    drillDownSeries.push({ name: key, id: key, data: drillDownData, })
   }
 
-  const series = []
+  // for (let i = 0; i < rows.length; i++) {
+  //   const row = rows[i]
+
+  //   const drillDownData = (useDrillDown) ? rows.map(dr => {
+  //     const drillDownValue = parseNumber(dr[selector])
+  //     return [dr[drilldown.Index], drillDownValue,]
+  //   }) : null
+  //   drillDownSeries.push({ name: seriesName, id: seriesName, data: drillDownData, })
+
+  //   let seriesValue = parseNumber(row[selector])
+
+  //   data.push({ name: seriesName, y: seriesValue, drilldown: (useDrillDown) ? seriesName : null, })
+  // }
+
+
   series.push({ name: 'Total', colorByPoint: true, data: data, })
 
   return { series: series, drillDownSeries: drillDownSeries, }
+}
+
+export function groupBy(arr, key) {
+  return arr.reduce(
+    (sum, item) => {
+      const groupByVal = item[key];
+      groupedItems = sum.get(groupByVal) || [];
+      groupedItems.push(item);
+      return sum.set(groupByVal, groupedItems);
+    },
+    new Map()
+  );
+}
+
+export function sumBy(arr, key) {
+  return arr.reduce(
+    (sum, item) => {
+      const value = parseNumber(item[key]);
+      return sum + value;
+    },
+    0
+  );
 }
