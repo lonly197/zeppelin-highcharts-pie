@@ -133,6 +133,8 @@ export function createDrilldownDataStructure(rows, conf) {
 
     const drillDownData = (useDrillDown) ? values.map(dr => {
       const drillDownValue = parseNumber(dr[selector])
+      console.log('drilldown.index',drilldown.Index)
+      console.log('drilldown.value',dr[drilldown.Index])
       return [dr[drilldown.Index], drillDownValue,]
     }) : null
     drillDownSeries.push({ name: key, id: key, data: drillDownData, })
