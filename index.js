@@ -132,17 +132,16 @@ export default class Chart extends Visualization {
 export function createDrilldownDataStructure(rows, conf) {
   const { category, value, drilldown } = conf
   const useDrillDown = (drilldown && drilldown.aggr.length > 0)
-  const selector = parseNumber(value.name)
-  const seriesName = category.name
+  const selector = parseNumber(value.index)
   const drillDownSeries = []
   const data = []
   const series = []
 
-  rows = groupBy(rows, seriesName)
+  rows = groupBy(rows, category.index)
 
   for (let [key, values] of rows) {
 
-    let seriesValue = sumBy(values,selector)
+    let seriesValue = sumBy(values, selector)
     data.push({ name: key, y: seriesValue, drilldown: (useDrillDown) ? key : null, })
 
     const drillDownData = (useDrillDown) ? values.map(dr => {
@@ -150,22 +149,8 @@ export function createDrilldownDataStructure(rows, conf) {
       return [dr[drilldown.Index], drillDownValue,]
     }) : null
     drillDownSeries.push({ name: key, id: key, data: drillDownData, })
+
   }
-
-  // for (let i = 0; i < rows.length; i++) {
-  //   const row = rows[i]
-
-  //   const drillDownData = (useDrillDown) ? rows.map(dr => {
-  //     const drillDownValue = parseNumber(dr[selector])
-  //     return [dr[drilldown.Index], drillDownValue,]
-  //   }) : null
-  //   drillDownSeries.push({ name: seriesName, id: seriesName, data: drillDownData, })
-
-  //   let seriesValue = parseNumber(row[selector])
-
-  //   data.push({ name: seriesName, y: seriesValue, drilldown: (useDrillDown) ? seriesName : null, })
-  // }
-
 
   series.push({ name: 'Total', colorByPoint: true, data: data, })
 
