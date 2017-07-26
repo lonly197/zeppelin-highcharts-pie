@@ -75,7 +75,6 @@ export default class Chart extends Visualization {
 
     const { series, drillDownSeries, } = createDrilldownDataStructure(rows, conf)
     const chartOption = createPieChartOption(series, drillDownSeries, parameter)
-    chartOption = Object.assign(chartOption,{credits: {enabled: false}})
     // console.info('pie-chartOption', chartOption)
     this.chartInstance = Highcharts.chart(this.getChartElementId(), chartOption)
   }
