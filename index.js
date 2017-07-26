@@ -4,12 +4,14 @@ import ColumnselectorTransformation from 'zeppelin-tabledata/columnselector'
 import Highcharts from 'highcharts/highcharts'
 require('highcharts/modules/data')(Highcharts);
 require('highcharts/modules/exporting')(Highcharts);
+require('highcharts/modules/exporting')(Highcharts);
+require('highcharts/themes/grid-light')(Highcharts);
 
 // http://stackoverflow.com/questions/42076332/uncaught-typeerror-e-dodrilldown-is-not-a-function-highcharts
 import Drilldown from 'highcharts/modules/drilldown'
 if (!Highcharts.Chart.prototype.addSeriesAsDrilldown) { Drilldown(Highcharts) }
 
-import { CommonParameter, parseNumber, createPieChartOption, } from './chart/pie'
+import { CommonParameter, createDrilldownDataStructure, createPieChartOption, } from './chart/pie'
 
 
 export default class Chart extends Visualization {
@@ -21,8 +23,6 @@ export default class Chart extends Visualization {
       { name: 'value' },
       { name: 'drilldown' },
     ]
-
-    this.parameter = CommonParameter
 
     this.parameter = initParameter(CommonParameter)
 
@@ -75,6 +75,7 @@ export default class Chart extends Visualization {
 
     const { series, drillDownSeries, } = createDrilldownDataStructure(rows, conf)
     const chartOption = createPieChartOption(series, drillDownSeries, parameter)
+    chartOption = Object.assign(chartOption,{credits: {enabled: false}})
     // console.info('pie-chartOption', chartOption)
     this.chartInstance = Highcharts.chart(this.getChartElementId(), chartOption)
   }
@@ -114,56 +115,6 @@ export default class Chart extends Visualization {
   getTransformation() {
     return this.transformation
   }
-}
-
-export function createDrilldownDataStructure(rows, conf) {
-  const { category, value, drilldown } = conf
-  const useDrillDown = (drilldown && drilldown.aggr.length > 0)
-  const selector = parseNumber(value.index)
-  const drillDownSeries = []
-  const data = []
-  const series = []
-
-  rows = groupBy(rows, category.index)
-
-  for (let [key, values] of rows) {
-
-    let seriesValue = sumBy(values, selector)
-    data.push({ name: key, y: seriesValue, drilldown: (useDrillDown) ? key : null, })
-
-    const drillDownData = (useDrillDown) ? values.map(dr => {
-      const drillDownValue = parseNumber(dr[selector])
-      return [dr[drilldown.index], drillDownValue,]
-    }) : null
-    drillDownSeries.push({ name: key, id: key, data: drillDownData, })
-
-  }
-
-  series.push({ name: 'Total', colorByPoint: true, data: data, })
-
-  return { series: series, drillDownSeries: drillDownSeries, }
-}
-
-export function groupBy(arr, key) {
-  return arr.reduce(
-    (sum, item) => {
-      const groupByVal = item[key];
-      let groupedItems = sum.get(groupByVal) || [];
-      groupedItems.push(item);
-      return sum.set(groupByVal, groupedItems);
-    },
-    new Map()
-  );
-}
-
-export function sumBy(arr, key) {
-  return arr.reduce(
-    (sum, item) => {
-      const value = parseNumber(item[key]);
-      return sum + value;
-    },
-    0
-  );
 }
 
 export function initParameter(parameter){
