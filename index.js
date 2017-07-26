@@ -176,7 +176,7 @@ export function groupBy(arr, key) {
   return arr.reduce(
     (sum, item) => {
       const groupByVal = item[key];
-      groupedItems = sum.get(groupByVal) || [];
+      let groupedItems = sum.get(groupByVal) || [];
       groupedItems.push(item);
       return sum.set(groupByVal, groupedItems);
     },
