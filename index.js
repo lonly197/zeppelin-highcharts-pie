@@ -75,7 +75,7 @@ export default class Chart extends Visualization {
 
     const { series, drillDownSeries, } = createDrilldownDataStructure(rows, conf)
     const chartOption = createPieChartOption(series, drillDownSeries, parameter)
-    console.info('pie-chartOption', chartOption)
+    // console.info('pie-chartOption', chartOption)
     this.chartInstance = Highcharts.chart(this.getChartElementId(), chartOption)
   }
 
@@ -90,8 +90,8 @@ export default class Chart extends Visualization {
    *  For example, `["19", "4"]`
    */
   render(tableData) {
-    console.info('pie-tableData', tableData)
-    console.info('pie-conf', this.config)
+    // console.info('pie-tableData', tableData)
+    // console.info('pie-conf', this.config)
     const conf = this.config
 
     /** heatmap can be rendered when all 3 axises are defined */
@@ -100,11 +100,11 @@ export default class Chart extends Visualization {
     }
 
     const { rows, } = tableData
-    // const parameter = this.parameter
-    console.info('parameter', this.parameter)
+    const parameter = this.parameter
+    // console.info('parameter', parameter)
 
     try {
-      this.drawPieChart(this.parameter, conf, rows)
+      this.drawPieChart(parameter, conf, rows)
     } catch (error) {
       console.error(error)
       this.showError(error)
@@ -133,9 +133,7 @@ export function createDrilldownDataStructure(rows, conf) {
 
     const drillDownData = (useDrillDown) ? values.map(dr => {
       const drillDownValue = parseNumber(dr[selector])
-      console.log('drilldown.index',drilldown.Index)
-      console.log('drilldown.value',dr[drilldown.Index])
-      return [dr[drilldown.Index], drillDownValue,]
+      return [dr[drilldown.index], drillDownValue,]
     }) : null
     drillDownSeries.push({ name: key, id: key, data: drillDownData, })
 
