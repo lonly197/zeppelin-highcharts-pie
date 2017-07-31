@@ -5,6 +5,7 @@ import Highcharts from 'highcharts/highcharts'
 require('highcharts/modules/data')(Highcharts);
 require('highcharts/modules/exporting')(Highcharts);
 require('highcharts/modules/exporting')(Highcharts);
+require('highcharts/modules/no-data-to-display')(Highcharts);
 require('highcharts/themes/grid-light')(Highcharts);
 
 // http://stackoverflow.com/questions/42076332/uncaught-typeerror-e-dodrilldown-is-not-a-function-highcharts
