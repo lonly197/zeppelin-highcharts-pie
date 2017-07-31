@@ -11,8 +11,8 @@ The Pie Chart for Apache Zeppelin using [highcharts](https://www.amcharts.com/)
 ## Install
 
 ```shell
-# $ZEPPELIN_HOME=/opt/zeppelin
-cd $ZEPPELIN_HOME/local_repo/
+export ZEPPELIN_HOME=/opt/zeppelin
+cd $ZEPPELIN_HOME/local-repo/
 git clone https://github.com/lonly197/zeppelin-highcharts-pie.git
 cd zeppelin-highcharts-pie
 npm install
@@ -31,6 +31,12 @@ And enable visualization from Helium menu.
 ## Screenshots 
 
 ![](https://raw.githubusercontent.com/lonly197/zeppelin-highcharts-pie/master/screenshots/pie-usage.gif)
+
+## Zeppelin Charts
+
+- **zeppelin-highcharts-pie** ([highcharts](https://www.highcharts.com/))
+- [zeppelin-amcharts-line](https://github.com/lonly197/zeppelin-amcharts-line) ([amcharts](https://www.amcharts.com/))
+- [zeppelin-highcharts-heatmap](https://github.com/lonly197/zeppelin-highcharts-heatmap) ([highcharts](http://www.highcharts.com/))
 
 ## License
 
