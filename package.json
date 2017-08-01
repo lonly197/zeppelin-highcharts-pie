@@ -10,7 +10,9 @@
     "zeppelin",
     "helium",
     "visualization",
-    "ultimate"
+    "pie",
+    "chart",
+    "highcharts"
   ],
   "author": "lonly",
   "license": "SEE LICENSE IN <LICENSE>",
