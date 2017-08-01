@@ -1,12 +1,12 @@
 export const CommonParameter = {
   'showLegend': { valueType: 'boolean', defaultValue: true, description: 'show legend', widget: 'checkbox', },
-  'legendPosition': { valueType: 'string', defaultValue: 'bottom', description: 'position of legend', widget: 'option', optionValues: [ 'bottom', 'top', ], },
-  'legendLayout': { valueType: 'string', defaultValue: 'horizontal', description: 'layout of legend', widget: 'option', optionValues: [ 'horizontal', 'vertical', ], },
+  'legendPosition': { valueType: 'string', defaultValue: 'bottom', description: 'position of legend', widget: 'option', optionValues: ['bottom', 'top',], },
+  'legendLayout': { valueType: 'string', defaultValue: 'horizontal', description: 'layout of legend', widget: 'option', optionValues: ['horizontal', 'vertical',], },
   'legendLabelFormat': { valueType: 'string', defaultValue: '', description: 'text format of legend (<a href="http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting">doc</a>)', },
   'mainTitle': { valueType: 'string', defaultValue: '', description: 'main title of chart', },
   'subTitle': { valueType: 'string', defaultValue: '', description: 'sub title of chart', },
   'valueUnit': { valueType: 'string', defaultValue: '', description: 'unit of value', },
-  'dataLabelType': { valueType: 'string', defaultValue: 'outside', description: 'display type of data label', widget: 'option', optionValues: [ 'outside', 'inside', ], },
+  'dataLabelType': { valueType: 'string', defaultValue: 'outside', description: 'display type of data label', widget: 'option', optionValues: ['outside', 'inside',], },
   'dataLabelPrecision': { valueType: 'string', defaultValue: '.2f', description: 'precision of data label format without <code>:</code> (<a href="http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting">doc</a>)', },
   'tooltipPercentPrecision': { valueType: 'string', defaultValue: '.2f', description: 'precision of tooltip percentage without <code>:</code> (<a href="http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting">doc</a>)', },
   'tooltipValuePrecision': { valueType: 'string', defaultValue: '.1f', description: 'precision of tooltip value without <code>:</code> (<a href="http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting">doc</a>)', },
@@ -39,7 +39,7 @@ export function createDrilldownDataStructure(rows, seriesName) {
 
     const drillDownData = row.drillDown.map(dr => {
       const drillDownValue = parseNumber(dr.value)
-      return [ dr.group, drillDownValue, ]
+      return [dr.group, drillDownValue,]
     })
     drillDownSeries.push({ name: selector, id: selector, data: drillDownData, })
 
@@ -70,10 +70,7 @@ export function createPieChartOption(series, drillDownSeries, parameter) {
       series: {
         dataLabels: {
           enabled: true,
-          format: `{point.name}: ${getPrecisionFormat(dataLabelPrecision, 'point.percentage')}%`,
-           credits: {
-            enabled: false
-          }
+          format: `{point.name}: ${getPrecisionFormat(dataLabelPrecision, 'point.percentage')}%`
         }
       },
       pie: {
@@ -82,19 +79,22 @@ export function createPieChartOption(series, drillDownSeries, parameter) {
         showInLegend: true
       }
     },
+    credits: {
+      enabled: false
+    },
     legend: { enabled: showLegend, labelFormat: '{name}', },
     tooltip: {
       headerFormat: `
         <span style="font-size:11px">{series.name}: (${getPrecisionFormat(tooltipValuePrecision, 'point.total')}${valueUnit !== '' ? ' ' + valueUnit : ''})</span><br>`,
       pointFormat: `
         <span style="color:{point.color}">{point.name}</span>: <b>${getPrecisionFormat(tooltipPercentPrecision, 'point.percentage')}%</b>
-        (${getPrecisionFormat(tooltipValuePrecision, 'point.y')}${valueUnit !== '' ? ' ' +valueUnit : ''})`
+        (${getPrecisionFormat(tooltipValuePrecision, 'point.y')}${valueUnit !== '' ? ' ' + valueUnit : ''})`
     },
     series: series,
     drilldown: { series: drillDownSeries, },
   }
 
-  if (mainTitle !== '') { option.title.text = mainTitle  }
+  if (mainTitle !== '') { option.title.text = mainTitle }
   if (subTitle !== '') { option.subtitle = { text: subTitle, } }
   if (legendPosition === 'top') { option.legend.verticalAlign = 'top' }
   if (legendLayout === 'vertical') { option.legend.layout = legendLayout }
