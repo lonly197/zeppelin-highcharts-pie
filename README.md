@@ -1,6 +1,6 @@
 # zeppelin-highcharts-pie
 
-The Pie Chart for Apache Zeppelin using [highcharts](https://www.amcharts.com/)
+The Pie Chart for Apache Zeppelin using [highcharts](https://www.highcharts.com/)
 
 ## Compatibility
 
