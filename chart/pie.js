@@ -70,7 +70,10 @@ export function createPieChartOption(series, drillDownSeries, parameter) {
       series: {
         dataLabels: {
           enabled: true,
-          format: `{point.name}: ${getPrecisionFormat(dataLabelPrecision, 'point.percentage')}%`
+          format: `{point.name}: ${getPrecisionFormat(dataLabelPrecision, 'point.percentage')}%`,
+           credits: {
+            enabled: false
+          }
         }
       },
       pie: {
