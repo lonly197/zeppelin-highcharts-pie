@@ -1,9 +1,8 @@
 import Visualization from 'zeppelin-vis'
-import ColumnselectorTransformation from 'zeppelin-tabledata/columnselector'
+import AdvancedTransformation from './transform/advanced-transformation'
 
 import Highcharts from 'highcharts/highcharts'
 require('highcharts/modules/data')(Highcharts);
-require('highcharts/modules/exporting')(Highcharts);
 require('highcharts/modules/exporting')(Highcharts);
 require('highcharts/modules/no-data-to-display')(Highcharts);
 require('highcharts/themes/grid-light')(Highcharts);
@@ -14,22 +13,51 @@ if (!Highcharts.Chart.prototype.addSeriesAsDrilldown) { Drilldown(Highcharts) }
 
 import { CommonParameter, createDrilldownDataStructure, createPieChartOption, } from './chart/pie'
 
+import { DonutParameter, createDonutChartOption } from './chart/donut'
+import { HalfDonutParameter, createHalfDonutChartOption } from './chart/harf-donut'
 
 export default class Chart extends Visualization {
   constructor(targetEl, config) {
     super(targetEl, config)
 
-    this.columnSelectorProps = [
-      { name: 'category' },
-      { name: 'value' },
-      { name: 'drilldown' },
-    ]
+    const spec = {
+      charts: {
+        'pie': {
+          transform: { method: 'drill-down', },
+          sharedAxis: true,
+          axis: {
+            'category': { dimension: 'multiple', axisType: 'key', },
+            'value': { dimension: 'multiple', axisType: 'aggregator', minAxisCount: 1, },
+            'drill-down': { dimension: 'multiple', axisType: 'group', },
+          },
+          parameter: CommonParameter,
+        },
 
-    this.parameter = initParameter(CommonParameter)
+        'donut': {
+          transform: { method: 'drill-down', },
+          sharedAxis: true,
+          axis: {
+            'category': { dimension: 'multiple', axisType: 'key', },
+            'value': { dimension: 'multiple', axisType: 'aggregator', minAxisCount: 1, },
+            'drill-down': { dimension: 'multiple', axisType: 'group', },
+          },
+          parameter: DonutParameter,
+        },
 
-    this.transformation = new ColumnselectorTransformation(
-      config, this.columnSelectorProps)
+        'half-donut': {
+          transform: { method: 'drill-down', },
+          sharedAxis: true,
+          axis: {
+            'category': { dimension: 'multiple', axisType: 'key', },
+            'value': { dimension: 'multiple', axisType: 'aggregator', minAxisCount: 1, },
+            'drill-down': { dimension: 'multiple', axisType: 'group', },
+          },
+          parameter: HalfDonutParameter,
+        },
+      },
+    }
 
+    this.transformation = new AdvancedTransformation(config, spec)
   }
 
   getChartElementId() {
@@ -67,45 +95,61 @@ export default class Chart extends Visualization {
         </div>`
   }
 
-  drawPieChart(parameter, conf, rows) {
-    const column = conf.value
-    if (!column || column.aggr.length === 0) {
+  drawPieChart(parameter, column, transformer) {
+    if (column.aggregator.length === 0) {
       this.hideChart()
       return /** have nothing to display, if aggregator is not specified at all */
     }
 
-    const { series, drillDownSeries, } = createDrilldownDataStructure(rows, conf)
+    const { rows, } = transformer()
+
+    const { series, drillDownSeries, } = createDrilldownDataStructure(rows)
     const chartOption = createPieChartOption(series, drillDownSeries, parameter)
-    // console.info('pie-chartOption', chartOption)
     this.chartInstance = Highcharts.chart(this.getChartElementId(), chartOption)
   }
 
-  /**
-   * @param tableData {Object} includes cols and rows. For example,
-   *                           `{columns: Array[2], rows: Array[11], comment: ""}`
-   *
-   * Each column includes `aggr`, `index`, `name` fields.
-   *  For example, `{ aggr: "sum", index: 0, name: "age"}`
-   *
-   * Each row is an array including values.
-   *  For example, `["19", "4"]`
-   */
-  render(tableData) {
-    // console.info('pie-tableData', tableData)
-    // console.info('pie-conf', this.config)
-    const conf = this.config
-
-    /** heatmap can be rendered when all 3 axises are defined */
-    if (!conf.category || !conf.value) {
-      return
+  drawDonutChart(parameter, column, transformer) {
+    if (column.aggregator.length === 0) {
+      this.hideChart()
+      return /** have nothing to display, if aggregator is not specified at all */
     }
 
-    const { rows, } = tableData
-    const parameter = this.parameter
-    // console.info('parameter', parameter)
+    const { rows, } = transformer()
+
+    const { series, drillDownSeries, } = createDrilldownDataStructure(rows)
+    const chartOption = createDonutChartOption(series, drillDownSeries, parameter)
+    this.chartInstance = Highcharts.chart(this.getChartElementId(), chartOption)
+  }
+
+  drawHalfDonutChart(parameter, column, transformer) {
+    if (column.aggregator.length === 0) {
+      this.hideChart()
+      return /** have nothing to display, if aggregator is not specified at all */
+    }
+
+    const { rows, } = transformer()
+
+    const { series, drillDownSeries, } = createDrilldownDataStructure(rows)
+    const chartOption = createHalfDonutChartOption(series, drillDownSeries, parameter)
+    this.chartInstance = Highcharts.chart(this.getChartElementId(), chartOption)
+  }
+
+  render(data) {
+    const {
+      chartChanged, parameterChanged,
+      chart, parameter, column, transformer,
+    } = data
+
+    if (!chartChanged && !parameterChanged) { return }
 
     try {
-      this.drawPieChart(parameter, conf, rows)
+      if (chart === 'pie') {
+        this.drawPieChart(parameter, column, transformer)
+      } else if (chart === 'donut') {
+        this.drawDonutChart(parameter, column, transformer)
+      } else if (chart === 'half-donut') {
+        this.drawHalfDonutChart(parameter, column, transformer)
+      }
     } catch (error) {
       console.error(error)
       this.showError(error)
@@ -117,10 +161,17 @@ export default class Chart extends Visualization {
   }
 }
 
-export function initParameter(parameter){
-  const params = {}
-  for(let [key,value] of Object.entries(parameter)){
-    params[key]=value.defaultValue
+export function getSeriesName(column) {
+  let seriesName = ''
+
+  if (column.key.length > 0) { seriesName = column.key.map(c => c.name).join('.') }
+  if (column.aggregator.length === 1) {
+    seriesName = `${seriesName} / ${column.aggregator[0].name}`
+  } else if (column.aggregator.length > 1) {
+    seriesName = `${seriesName} / [${column.aggregator.map(c => c.name).join('|')}]`
   }
-  return params
+
+  return seriesName
 }
+
+

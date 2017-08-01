@@ -1,42 +1,55 @@
-import { getPrecisionFormat, parseNumber, groupBy, sumBy } from './utils.js'
-
 export const CommonParameter = {
   'showLegend': { valueType: 'boolean', defaultValue: true, description: 'show legend', widget: 'checkbox', },
-  'legendPosition': { valueType: 'string', defaultValue: 'bottom', description: 'position of legend', widget: 'option', optionValues: ['bottom', 'top',], },
-  'legendLayout': { valueType: 'string', defaultValue: 'horizontal', description: 'layout of legend', widget: 'option', optionValues: ['horizontal', 'vertical',], },
+  'legendPosition': { valueType: 'string', defaultValue: 'bottom', description: 'position of legend', widget: 'option', optionValues: [ 'bottom', 'top', ], },
+  'legendLayout': { valueType: 'string', defaultValue: 'horizontal', description: 'layout of legend', widget: 'option', optionValues: [ 'horizontal', 'vertical', ], },
   'legendLabelFormat': { valueType: 'string', defaultValue: '', description: 'text format of legend (<a href="http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting">doc</a>)', },
   'mainTitle': { valueType: 'string', defaultValue: '', description: 'main title of chart', },
   'subTitle': { valueType: 'string', defaultValue: '', description: 'sub title of chart', },
   'valueUnit': { valueType: 'string', defaultValue: '', description: 'unit of value', },
-  'dataLabelType': { valueType: 'string', defaultValue: 'outside', description: 'display type of data label', widget: 'option', optionValues: ['outside', 'inside',], },
+  'dataLabelType': { valueType: 'string', defaultValue: 'outside', description: 'display type of data label', widget: 'option', optionValues: [ 'outside', 'inside', ], },
   'dataLabelPrecision': { valueType: 'string', defaultValue: '.2f', description: 'precision of data label format without <code>:</code> (<a href="http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting">doc</a>)', },
   'tooltipPercentPrecision': { valueType: 'string', defaultValue: '.2f', description: 'precision of tooltip percentage without <code>:</code> (<a href="http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting">doc</a>)', },
   'tooltipValuePrecision': { valueType: 'string', defaultValue: '.1f', description: 'precision of tooltip value without <code>:</code> (<a href="http://www.highcharts.com/docs/chart-concepts/labels-and-string-formatting">doc</a>)', },
 }
 
-export function createDrilldownDataStructure(rows, conf) {
-  const { category, value, drilldown } = conf
-  const useDrillDown = (drilldown && drilldown.aggr.length > 0)
-  const selector = parseNumber(value.index)
+export function getPrecisionFormat(precision, prefix) {
+  return (precision === '') ? `{${prefix}:.1f}` : `{${prefix}:${precision}}`
+}
+
+export function parseNumber(oldValue) {
+  let newValue = oldValue
+
+  try {
+    /** highcharts.pie only allow number type */
+    if (typeof newValue !== 'number') { newValue = parseFloat(newValue) }
+    if (isNaN(newValue)) { newValue = 0 }
+  } catch (error) { /** ignore */ }
+
+  return newValue
+}
+
+export function createDrilldownDataStructure(rows, seriesName) {
   const drillDownSeries = []
   const data = []
-  const series = []
 
-  rows = groupBy(rows, category.index)
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i]
+    const selector = row.selector
 
-  for (let [key, values] of rows) {
 
-    let seriesValue = sumBy(values, selector)
-    data.push({ name: key, y: seriesValue, drilldown: (useDrillDown) ? key : null, })
+    const drillDownData = row.drillDown.map(dr => {
+      const drillDownValue = parseNumber(dr.value)
+      return [ dr.group, drillDownValue, ]
+    })
+    drillDownSeries.push({ name: selector, id: selector, data: drillDownData, })
 
-    const drillDownData = (useDrillDown) ? values.map(dr => {
-      const drillDownValue = parseNumber(dr[selector])
-      return [dr[drilldown.index], drillDownValue,]
-    }) : null
-    drillDownSeries.push({ name: key, id: key, data: drillDownData, })
+    let seriesValue = parseNumber(row.value)
 
+    const useDrillDown = (row.drillDown && row.drillDown.length > 0)
+    data.push({ name: selector, y: seriesValue, drilldown: (useDrillDown) ? selector : null, })
   }
 
+  const series = []
   series.push({ name: 'Total', colorByPoint: true, data: data, })
 
   return { series: series, drillDownSeries: drillDownSeries, }
@@ -57,10 +70,7 @@ export function createPieChartOption(series, drillDownSeries, parameter) {
       series: {
         dataLabels: {
           enabled: true,
-          format: `{point.name}: ${getPrecisionFormat(dataLabelPrecision, 'point.percentage')}%`,
-          credits: {
-            enabled: false
-          }
+          format: `{point.name}: ${getPrecisionFormat(dataLabelPrecision, 'point.percentage')}%`
         }
       },
       pie: {
@@ -75,14 +85,13 @@ export function createPieChartOption(series, drillDownSeries, parameter) {
         <span style="font-size:11px">{series.name}: (${getPrecisionFormat(tooltipValuePrecision, 'point.total')}${valueUnit !== '' ? ' ' + valueUnit : ''})</span><br>`,
       pointFormat: `
         <span style="color:{point.color}">{point.name}</span>: <b>${getPrecisionFormat(tooltipPercentPrecision, 'point.percentage')}%</b>
-        (${getPrecisionFormat(tooltipValuePrecision, 'point.y')}${valueUnit !== '' ? ' ' + valueUnit : ''})`
+        (${getPrecisionFormat(tooltipValuePrecision, 'point.y')}${valueUnit !== '' ? ' ' +valueUnit : ''})`
     },
     series: series,
     drilldown: { series: drillDownSeries, },
-    credits: { enabled: false },
   }
 
-  if (mainTitle !== '') { option.title.text = mainTitle }
+  if (mainTitle !== '') { option.title.text = mainTitle  }
   if (subTitle !== '') { option.subtitle = { text: subTitle, } }
   if (legendPosition === 'top') { option.legend.verticalAlign = 'top' }
   if (legendLayout === 'vertical') { option.legend.layout = legendLayout }
