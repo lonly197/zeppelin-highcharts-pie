@@ -34,11 +34,17 @@ And enable visualization from Helium menu.
 
 ## Zeppelin Charts
 
-- **zeppelin-highcharts-pie** ([highcharts](https://www.highcharts.com/))
 - [zeppelin-amcharts-line](https://github.com/lonly197/zeppelin-amcharts-line) ([amcharts](https://www.amcharts.com/))
+- [zeppelin-amcharts-area](https://github.com/lonly197/zeppelin-amcharts-area) ([amcharts](https://www.amcharts.com/))
+- [zeppelin-highcharts-column](https://github.com/lonly197/zeppelin-highcharts-column) ([highcharts](http://www.highcharts.com/))
+- **zeppelin-highcharts-pie** ([highcharts](https://www.highcharts.com/))
 - [zeppelin-highcharts-heatmap](https://github.com/lonly197/zeppelin-highcharts-heatmap) ([highcharts](http://www.highcharts.com/))
 
 ## License
 
 - Library: [highcharts](http://www.highcharts.com/)
 - Icon: [icons8.com](https://icons8.com/web-app/21214/pie-chart) 
+
+## Contact me
+
+* Email: lonly197@gmail.com
